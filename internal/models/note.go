@@ -11,7 +11,7 @@ type Note struct {
     Title     string    `json:"title" gorm:"not null;size:255"`
     Content   string    `json:"content" gorm:"not null"`
     CreatedAt time.Time `json:"created_at" gorm:"default:CURRENT_TIMESTAMP"`
-    UpdatedAt time.Time `json:"updated_at" gorm:"default:CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"`
+    UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 
     User User `json:"-" gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
