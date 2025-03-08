@@ -1,34 +1,48 @@
 package main
 
 import (
-    "database/sql"
-    "fmt"
-    "log"
-    "os"
+	"fmt"
+	"log"
+	"os"
 
-    _ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/WhoisCipher/notes-api/internal/models"
+	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 )
 
-func main()  {
-    dbHost := os.Getenv("DB_HOST")
-    dbUser := os.Getenv("DB_USER")
-    dbPort := os.Getenv("DB_PORT")
-    dbPass := os.Getenv("DB_PASS")
-    dbName := os.Getenv("DB_NAME")
+func main() {
+	err := godotenv.Load()
 
-    connStr := fmt.Sprintf("host=%s user=%s port=%s password=%s dbname=%s sslmode=disable", dbHost, dbUser, dbPort, dbPass, dbName)
+	if err != nil {
+		fmt.Print("CouldNot read .env", err)
+	}
 
-    var err error
-    db, err := sql.Open("postgres", connStr)
+	dbHost := os.Getenv("DB_HOST")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
 
-    if err != nil {
-        log.Fatal("Connection to database Failed", err)
+	if dbHost == "" || dbUser == "" || dbPass == "" || dbPort == "" || dbName == "" {
+		log.Fatal("Environment variables not set")
+	}
+
+	dsn := "host=" + dbHost + " user=" + dbUser + " password=" + dbPass + " dbname=" + dbName + " port=" + dbPort + " sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		log.Fatal("CouldNot Connect to Database: ", err)
+	}
+
+    if err := db.AutoMigrate(&models.User{}, &models.Note{}); err != nil{
+        log.Fatal("Migration Failed: ", err)
     }
 
-    err = db.Ping()
-    if err != nil {
-        log.Fatal("Ping to database Failed", err)
+	app := fiber.New()
+    if err := app.Listen(":3000"); err != nil {
+        log.Fatal("CouldNot start server: ", err)
     }
-
-    fmt.Println("Connected to database")
 }
