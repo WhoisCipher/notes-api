@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/mail"
+    "time"
 
 	"gorm.io/gorm"
 
@@ -42,6 +43,16 @@ func Login(db *gorm.DB) fiber.Handler {
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
         }
 
-        return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Login Successful", "token": token})
+        c.Cookie(&fiber.Cookie{
+            Name: "token",
+            Value: token,
+            Expires: time.Now().Add(2 * time.Hour),
+            HTTPOnly: true,
+            Secure: false,
+            SameSite: "Strict",
+            Path: "/",
+        })
+
+        return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Login Successful", "token": token, "email": user.Email, "username": user.Username})
 	}
 }
