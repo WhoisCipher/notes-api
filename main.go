@@ -53,6 +53,7 @@ func main() {
 	api.Post("/notes", handlers.CreateNote(db))
     api.Get("/notes", handlers.GetNotes(db))
     api.Put("/notes/:id", handlers.UpdateNotes(db))
+    api.Delete("/notes/:id", handlers.DeleteNote(db))
 
 	if err := app.Listen(":3000"); err != nil {
 		log.Fatal("Couldnot start server: ", err)
