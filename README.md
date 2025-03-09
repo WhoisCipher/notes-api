@@ -4,4 +4,4 @@ A simple note app connected to the PostgreSQL database that performs basic CRUD 
 
 ***Frontend***
 
-Frontend is served by the [notes-frontend](https://github.com/WhoisCipher/notes-frontend) in vuejs because its lightweight and fast.
+Frontend is served by the [notes-frontend](https://github.com/WhoisCipher/notes-frontend) in nextJS+reactJS because its lightweight and fast.
