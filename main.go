@@ -8,6 +8,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"github.com/WhoisCipher/notes-api/internal/handlers"
+	"github.com/WhoisCipher/notes-api/internal/middleware"
 	"github.com/WhoisCipher/notes-api/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -37,12 +39,22 @@ func main() {
 		log.Fatal("CouldNot Connect to Database: ", err)
 	}
 
-    if err := db.AutoMigrate(&models.User{}, &models.Note{}); err != nil{
-        log.Fatal("Migration Failed: ", err)
-    }
+	if err := db.AutoMigrate(&models.User{}, &models.Note{}); err != nil {
+		log.Fatal("Migration Failed: ", err)
+	}
 
 	app := fiber.New()
-    if err := app.Listen(":3000"); err != nil {
-        log.Fatal("CouldNot start server: ", err)
-    }
+
+	app.Post("/signup", handlers.Signup(db))
+	app.Post("/login", handlers.Login(db))
+
+	api := app.Group("/api", middleware.Authentication())
+
+	api.Post("/notes", handlers.CreateNote(db))
+    api.Get("/notes", handlers.GetNotes(db))
+    api.Put("/notes/:id", handlers.UpdateNotes(db))
+
+	if err := app.Listen(":3000"); err != nil {
+		log.Fatal("Couldnot start server: ", err)
+	}
 }
